@@ -105,6 +105,15 @@ public class AuthService {
         return buildAuthResponse(user, accessToken, refreshToken);
     }
 
+    @Transactional
+    public void logout(RefreshTokenRequest request) {
+        String refreshTokenHash = tokenHashService.hash(request.getRefreshToken());
+        RefreshToken storedToken = refreshTokenRepository.findByTokenHash(refreshTokenHash)
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+
+        storedToken.setRevoked(true);
+    }
+
     private void saveRefreshToken(String token, User user) {
         LocalDateTime expiryDate = LocalDateTime.now().plusNanos(jwtService.getRefreshTokenExpirationMs() * 1_000_000);
         refreshTokenRepository.save(new RefreshToken(tokenHashService.hash(token), user, expiryDate));
