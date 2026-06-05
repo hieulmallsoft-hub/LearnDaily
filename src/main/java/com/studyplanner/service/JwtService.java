@@ -3,6 +3,7 @@ package com.studyplanner.service;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -79,8 +80,9 @@ public class JwtService {
         Date expiresAt = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-                .subject(user.getEmail())
                 .claims(extraClaims)
+                .subject(user.getEmail())
+                .id(UUID.randomUUID().toString())
                 .claim("userId", user.getId())
                 .claim("role", user.getRole())
                 .issuedAt(now)
